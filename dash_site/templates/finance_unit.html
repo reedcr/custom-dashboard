@@ -1,0 +1,292 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Finances by Unit</title>
+        <link rel="stylesheet" href="{% static 'dash_site/css/styles.css' %}">
+        <!-- <link rel="icon" href="./favicon.ico" type="image/x-icon"> -->
+    </head>
+
+    <body>
+        <main class="user-page">
+            <h1>Finances: Buildings & Units</h1>
+            <p>Welcome, {{ user.first_name }}!</p>
+
+            <section class="nav-option-btn-section">
+                <ul class="nav-option-btn-ul">
+                    <li class="nav-option-btn"><a href="{% url 'dashboard' %}"><button>Dashboard Home</button></a></li>
+                    <li class="nav-option-btn"><a href="{% url 'finance_month' yr=default_year month=default_month %}"><button>Finances by Month</button></a></li>
+                    <li class="nav-option-btn"><a href="{% url 'finance_unit' yr=default_year %}"><button>Finances by Unit</button></a></li>
+                    <li class="nav-option-btn"><a href="{% url 'finance_month' yr=default_year month=default_month %}"><button>+New Income</button></a></li>
+                    <li class="nav-option-btn"><a href="{% url 'finance_unit' yr=default_year %}"><button>Export Data</button></a></li>
+                    <!-- <li class="nav-option-btn"><button>Tenant Details</button></li> -->
+                    <!-- <li class="nav-option-btn"><button>Resources</button></li> -->
+                </ul>
+            </section>
+
+            <section id="all-finances">
+                <div id="finance-building-nav">
+                    <!-- Dropdown menu for years -->
+                    <button onclick="changeYear(-1)">Previous Year</button>
+                    <select id="year-list" onchange="fetchUnitData()">
+                        {% for year in available_years %}
+                            <option value="{{ year }}"{% if selected_year == year %}selected{% endif %}>{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                    <button onclick="changeYear(1)">Next Year</button>
+
+                    <!-- Dropdown menu for buildings -->
+                    <!-- <button onclick="changeBuilding(-1)">Previous Building</button>
+                    <select id="building-list" onchange="fetchUnitData()">
+                        {% for building in available_buildings %}
+                            <option value="{{ building }}" {% if selected_building == building %}selected{% endif %}>{{ building }}</option>
+                        {% endfor %}
+                    </select>
+                    <button onclick="changeBuilding(1)">Next Building</button> -->
+                </div>
+                
+                <div id="finance-by-building" class="finance-by-unit">
+                    
+                    <!-- Display Income Data for Selected Building and Year -->
+                    <h3>Monthly Total Income by Building</h3>
+                    <table id="income-table-by-building" class="finance-table-by-unit">
+                        <thead>
+                            <tr>
+                                <th>Building</th>
+                                <th>January</th>
+                                <th>February</th>
+                                <th>March</th>
+                                <th>April</th>
+                                <th>May</th>
+                                <th>June</th>
+                                <th>July</th>
+                                <th>August</th>
+                                <th>September</th>
+                                <th>October</th>
+                                <th>November</th>
+                                <th>December</th>
+                                <th>Year Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for income in finance_building.income_data %}
+                                <tr>
+                                    <td>{{ income.unit_id }}</td>
+                                    <td>{{ income.jan }}</td>
+                                    <td>{{ income.feb }}</td>
+                                    <td>{{ income.mar }}</td>
+                                    <td>{{ income.apr }}</td>
+                                    <td>{{ income.may }}</td>
+                                    <td>{{ income.jun }}</td>
+                                    <td>{{ income.jul }}</td>
+                                    <td>{{ income.aug }}</td>
+                                    <td>{{ income.sep }}</td>
+                                    <td>{{ income.oct }}</td>
+                                    <td>{{ income.nov }}</td>
+                                    <td>{{ income.dec }}</td>
+                                    <td>{{ income.year_total }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <button type="submit" onclick="exportToCSV('bldg_income')">Export to Spreadsheet</button>
+
+                    <!-- Display Income Data for Selected Building and Year -->
+                    <h3>Monthly Total Expenses by Building</h3>
+                    <table id="expense-table-by-building" class="finance-table-by-building">
+                        <thead>
+                            <tr>
+                                <th>Building</th>
+                                <th>January</th>
+                                <th>February</th>
+                                <th>March</th>
+                                <th>April</th>
+                                <th>May</th>
+                                <th>June</th>
+                                <th>July</th>
+                                <th>August</th>
+                                <th>September</th>
+                                <th>October</th>
+                                <th>November</th>
+                                <th>December</th>
+                                <th>Year Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in finance_building.expense_data %}
+                                <tr>
+                                    <td>{{ expense.unit_id }}</td>
+                                    <td>{{ expense.jan }}</td>
+                                    <td>{{ expense.feb }}</td>
+                                    <td>{{ expense.mar }}</td>
+                                    <td>{{ expense.apr }}</td>
+                                    <td>{{ expense.may }}</td>
+                                    <td>{{ expense.jun }}</td>
+                                    <td>{{ expense.jul }}</td>
+                                    <td>{{ expense.aug }}</td>
+                                    <td>{{ expense.sep }}</td>
+                                    <td>{{ expense.oct }}</td>
+                                    <td>{{ expense.nov }}</td>
+                                    <td>{{ expense.dec }}</td>
+                                    <td>{{ expense.year_total }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <button type="submit" onclick="exportToCSV('bldg_expenses')">Export to Spreadsheet</button>
+
+                     <!-- Display Net Profit Data for Selected Building and Year -->
+                     <!-- <h3>Total Net Profits</h3>
+                     <table id="profit-table-by-building" class="finance-table-by-building">
+                         
+                     </table> -->
+                </div>
+
+                <div id="finance-display-by-unit" class="finance-display-by-unit">
+                    
+                    <!-- Display Income Data for All Units in Selected Year -->
+                    <h3>Monthly Total Income by Unit</h3>
+                    <table id="income-table-by-unit" class="finance-table-by-unit">
+                        <thead>
+                            <tr>
+                                <th>Unit</th>
+                                <th>January</th>
+                                <th>February</th>
+                                <th>March</th>
+                                <th>April</th>
+                                <th>May</th>
+                                <th>June</th>
+                                <th>July</th>
+                                <th>August</th>
+                                <th>September</th>
+                                <th>October</th>
+                                <th>November</th>
+                                <th>December</th>
+                                <th>Year Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for income in finance_unit.income_data %}
+                                <tr>
+                                    <td>{{ income.unit_id }}</td>
+                                    <td>{{ income.jan }}</td>
+                                    <td>{{ income.feb }}</td>
+                                    <td>{{ income.mar }}</td>
+                                    <td>{{ income.apr }}</td>
+                                    <td>{{ income.may }}</td>
+                                    <td>{{ income.jun }}</td>
+                                    <td>{{ income.jul }}</td>
+                                    <td>{{ income.aug }}</td>
+                                    <td>{{ income.sep }}</td>
+                                    <td>{{ income.oct }}</td>
+                                    <td>{{ income.nov }}</td>
+                                    <td>{{ income.dec }}</td>
+                                    <td>{{ income.year_total }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <button type="submit" onclick="exportToCSV('unit_income')">Export to Spreadsheet</button>
+
+
+                    <!-- Display Expense Data for All Units in Selected Year -->
+                    <h3>Monthly Total Expenses by Unit</h3>
+                    <table id="expense-table-by-unit" class="finance-table-by-unit">
+                        <thead>
+                            <tr>
+                                <th>Unit</th>
+                                <th>January</th>
+                                <th>February</th>
+                                <th>March</th>
+                                <th>April</th>
+                                <th>May</th>
+                                <th>June</th>
+                                <th>July</th>
+                                <th>August</th>
+                                <th>September</th>
+                                <th>October</th>
+                                <th>November</th>
+                                <th>December</th>
+                                <th>Year Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in finance_unit.expense_data %}
+                                <tr>
+                                    <td>{{ expense.unit_id }}</td>
+                                    <td>{{ expense.jan }}</td>
+                                    <td>{{ expense.feb }}</td>
+                                    <td>{{ expense.mar }}</td>
+                                    <td>{{ expense.apr }}</td>
+                                    <td>{{ expense.may }}</td>
+                                    <td>{{ expense.jun }}</td>
+                                    <td>{{ expense.jul }}</td>
+                                    <td>{{ expense.aug }}</td>
+                                    <td>{{ expense.sep }}</td>
+                                    <td>{{ expense.oct }}</td>
+                                    <td>{{ expense.nov }}</td>
+                                    <td>{{ expense.dec }}</td>
+                                    <td>{{ expense.year_total }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <button type="submit" onclick="exportToCSV('unit_expenses')">Export to Spreadsheet</button>
+
+
+                     <!-- Display Net Profit Data for All Units in Selected Year -->
+                     <!-- <h3>Total Net Profits</h3>
+                     <table id="profit-table-by-unit" class="finance-table-by-unit">
+                         
+                     </table> -->
+                </div>
+            </section>
+        </main>
+
+        <footer>&copy; 2024 C. R.</footer>
+        
+        <script>
+            // Retrieve BLDG data for selected year
+            function fetchUnitData() {
+                var year_option = document.getElementById('year-list').value;
+
+                // URL pattern for fetching income data like '/income_payments/{year}/{building}/'
+                window.location.href = `/finance_unit/${year_option}/`;
+            }
+
+            // Update dropdown menu for selected year 
+            //and trigger function to fetch bldg data
+            function changeYear(offset) {
+                var yearSelect = document.getElementById("year-list");
+                var currentYear = parseInt(yearSelect.value);
+                yearSelect.value = currentYear + offset;
+                fetchUnitData();
+            }
+
+            // Export selected data to CSV
+            function exportToCSV(exportID) {
+
+                // set exportID value
+                exportID = exportID || 'unit_income'
+                
+                // Get the selected year value from the dropdown menu
+                var selectedYear = document.getElementById("year-list").value;
+
+                // Construct the URL with the selected year value
+                var url = "{% url 'export_to_csv' %}?export_id=" + exportID + "&yr=" + selectedYear;
+
+                // Redirect to 'export_to_csv' URL
+                window.location.href = url;
+            }
+        </script>
+    </body>
+</html>

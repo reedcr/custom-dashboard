@@ -1,0 +1,120 @@
+/* Reset default browser styles */
+body, h1, p, a {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Global styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: whitesmoke;
+    line-height: 1.6;
+}
+
+/* Main content area */
+main {
+    width: 100%;
+    max-width: 100%;
+    min-height: 95vh;
+    background-color: #b3e6ff;
+}
+
+/* Heading styles */
+h1 {
+    font-size: 350%;
+    margin-bottom: 7.5%;
+    color: black;
+    text-align: center;
+}
+
+#landing-page {
+    height: 95vh;
+    text-align: left;
+}
+
+#landing-page h1 {
+    padding-top: 20%;
+}
+
+#landing-page h1 {
+    padding-top: 20%;
+}
+
+#login-link button {
+    width: 15%;
+    margin: 0 42.5%;
+    padding: 1.5% 0;
+    font-size: 135%;
+}
+
+#login-page {
+    height: 95vh;
+    text-align: left;
+}
+
+#login-page h2 {
+    padding: 10% 0 1.5% 40%;
+    font-size: 165%;
+}
+
+#login-page form {
+    padding: 1.5% 0 5% 40%;
+    font-size: 125%;
+}
+
+#login-page form button {
+    width: 15%;
+    margin: 2.5% 0;
+    padding: 1.5% 0;
+    font-size: 100%;
+}
+
+.user-page {
+    background-color: #e0f5ff;
+    padding: 0 10%;
+    width: 80%;
+}
+
+.user-page h1 {
+    background-color: none;
+    padding: 10% 0;
+}
+
+
+
+/* Paragraph styles */
+p {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+/* Link styles */
+a {
+    color: #004466;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.nav-option-btn-ul {
+    list-style-type: none;
+    display: flex;
+    padding: 5% 0;
+}
+
+.nav-option-btn {
+    list-style-type: none;
+    margin: 0 1%;
+}
+
+.nav-option-btn button {
+    font-size: 105%;
+
+}
+
+footer {
+    text-align: center;
+}

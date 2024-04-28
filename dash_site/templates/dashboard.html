@@ -1,0 +1,64 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Dashboard</title>
+        <link rel="stylesheet" href="{% static 'dash_site/css/styles.css' %}">
+        <!-- <link rel="icon" href="./favicon.ico" type="image/x-icon"> -->
+    </head>
+
+    <body>
+        <main class="user-page">
+            <h1>Dashboard</h1>
+            <p>Welcome, {{ user.first_name }}!</p>
+
+            <section class="nav-option-btn-section">
+                <ul class="nav-option-btn-ul">
+                    <li class="nav-option-btn"><a href="{% url 'dashboard' %}"><button>Dashboard Home</button></a></li>
+                    <li class="nav-option-btn"><a href="{% url 'finance_month' yr=default_year month=default_month %}"><button>Finances by Month</button></a></li>
+                    <li class="nav-option-btn"><a href="{% url 'finance_unit' yr=default_year %}"><button>Finances by Unit</button></a></li>
+                    <li class="nav-option-btn"><a href="{% url 'finance_month' yr=default_year month=default_month %}"><button>+New Payment</button></a></li>
+                    <li class="nav-option-btn"><a href="{% url 'finance_unit' yr=default_year %}"><button>Export Data</button></a></li>
+                    <!-- <li class="nav-option-btn"><button>Tenant Details</button></li> -->
+                    <!-- <li class="nav-option-btn"><button>Resources</button></li> -->
+                </ul>
+            </section>
+
+            <section id="dashboard-summary-main">
+                <div id="dashboard-income-summary" class="dashboard-summary-subsection">
+                    <h3>Recent Income</h3>
+                    <ul>
+                    {% for income in income_all|slice:":5" %}
+                        <li>
+                            {{ income }}
+                        </li>
+                    {% endfor %}
+                    </ul>
+                </div>
+                
+                <div id="dashboard-expense-summary" class="dashboard-summary-subsection">
+                    <h3>Recent Expenses</h3>
+                    <ul>
+                    {% for expense in expense_all|slice:":5" %}
+                        <li>
+                            {{ expense }}
+                        </li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </section>
+
+        </main>
+
+        <footer>&copy; 2024 C. R.</footer>
+        
+        <script>
+            
+        </script>
+    </body>
+</html>

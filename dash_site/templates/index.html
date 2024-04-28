@@ -1,0 +1,23 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Home</title>
+        <link rel="stylesheet" href="{% static 'dash_site/css/styles.css' %}">
+        <!-- <link rel="icon" href="./favicon.ico" type="image/x-icon"> -->
+    </head>
+    
+    <body>
+        <main id="landing-page">
+            <h1>Home</h1>
+            <a id="login-link" href="{% url 'login' %}"><button>login</button></a>
+        </main>
+
+        <footer>&copy; 2024 C. R.</footer>
+        <!-- <script src="index.js"></script> -->
+    </body>
+</html>
