@@ -49,7 +49,8 @@ def profile_view(request):
         return render(request, 'index.html', {'user': user})
 
 
-def get_expense_graph(expenses):
+# Generate Graph of Expenses over Time
+def get_expense_time_graph(expenses):
     # Format data for Matplotlib
     dates = [expense.exp_date for expense in expenses]
     amounts = [expense.exp_amt for expense in expenses]
@@ -85,7 +86,7 @@ def dashboard(request):
     client_all = ClientModel.objects.order_by("unit_id")
     expense_all = ExpenseModel.objects.order_by("-exp_date")
     income_all = IncomeModel.objects.order_by("-income_date")
-    expense_graph = get_expense_graph(expense_all)
+    expense_graph = get_expense_time_graph(expense_all)
     
     context = {
         "client_all": client_all,
