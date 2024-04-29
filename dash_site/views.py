@@ -6,6 +6,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 import csv
+from matplotlib import pyplot as plt
+from io import BytesIO
+import base64
 from .models import ExpenseModel, IncomeModel, ClientModel, BldgExpYrModel, BldgIncomeYrModel, UnitExpYrModel, UnitIncomeYrModel
 from .forms import IncomeForm, ExpenseForm
 from dotenv import load_dotenv
@@ -46,16 +49,48 @@ def profile_view(request):
         return render(request, 'index.html', {'user': user})
 
 
+def get_expense_graph(expenses):
+    # Format data for Matplotlib
+    dates = [expense.exp_date for expense in expenses]
+    amounts = [expense.exp_amt for expense in expenses]
+    
+    # Generate Matplotlib graph
+    plt.plot(dates, amounts, marker='o', linestyle='-')
+    plt.xlabel('Date')
+    plt.ylabel('Expense Amount')
+    plt.title('Expense Trends Over Time')
+    plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+    
+    # Convert x-axis dates to a more readable format (optional)
+    plt.gca().xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter('%Y-%m-%d'))
+    
+    # Ensure that there's enough space for x-axis labels
+    plt.tight_layout()
+    
+    # Save the Matplotlib graph as a PNG image (optional)
+    plt.savefig('expense_trends.png')
+    
+    # Convert the Matplotlib graph to a base64-encoded string (optional)
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    img_str = base64.b64encode(buffer.read()).decode()
+    buffer.close()
+
+    return img_str
+
 # Manager Dashboard
 @login_required
 def dashboard(request):
     client_all = ClientModel.objects.order_by("unit_id")
     expense_all = ExpenseModel.objects.order_by("-exp_date")
     income_all = IncomeModel.objects.order_by("-income_date")
-
+    expense_graph = get_expense_graph(expense_all)
+    
     context = {
         "client_all": client_all,
-        "expense_all": expense_all, 
+        "expense_all": expense_all,
+        "expense_graph": expense_graph,
         "income_all": income_all,
         "default_year": default_year,
         "default_month": default_month
