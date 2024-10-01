@@ -1,0 +1,27 @@
+<!-- CRUD Income in Database -->
+{% load static %}
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link rel="stylesheet" href="{% static 'dash_site/css/styles.css' %}">
+        <!-- <link rel="icon" href="./favicon.ico" type="image/x-icon"> -->
+    </head>
+    
+    <body>
+        <div id="crud-expense-display">
+            <h4 id="crud-expense-heading"></h4>
+            <form id="crud-expense-form" class="crud-form" method="POST" action="" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ crud_expense_form.as_p }}
+                <button id="submit-expense-form-btn" class="crud-expense-field" type="submit">Submit</button>
+            </form>
+        </div>
+        
+        <script>
+        
+        </script>
+    </body>
+</html>

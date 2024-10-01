@@ -1,0 +1,60 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Add Data</title>
+        <link rel="stylesheet" href="{% static 'dash_site/css/styles.css' %}">
+        <!-- <link rel="icon" href="./favicon.ico" type="image/x-icon"> -->
+    </head>
+
+    <body>
+        {% include '../components/header.html' %}
+
+        <main class="user-page">
+            <!-- Display Income Add Form -->
+            <section id="crud-income" class="crud-menu">
+                <h2>Add Income</h2>
+
+                {% include '../components/add_income.html' %}
+            
+            </section>
+                
+            <!-- Display Expense Add Form -->
+            <section id="crud-expenses" class="crud-menu">
+                <h2>Add Expense</h2>
+
+                {% include '../components/add_expense.html' %}
+
+            </section>
+        </main>
+
+        {% include '../components/footer.html' %}
+        
+        <script>
+            function showAddIncome() {
+                let form = document.getElementById("add-income-form");
+                
+                // Display the form for updating income
+                form.style.display = "block";
+
+                let url = "/submit_add_income/";
+                form.action = url;
+            }
+
+            // Show ADD EXPENSE Form
+            function showAddExpense() {
+                let form = document.getElementById("add-expense-form");
+                
+                // Display the form for updating income
+                form.style.display = "block";
+
+                let url = "/submit_add_expense/";
+                form.action = url;
+            }
+        </script>
+    </body>
+</html>

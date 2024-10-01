@@ -36,21 +36,24 @@ class BldgModel(models.Model):
 
 # expenses table
 class ExpenseModel(models.Model):
-    exp_id = models.AutoField(primary_key=True, db_column=os.getenv('EXP_ID_COLUMN', 'exp_id'))
+    expense_id = models.AutoField(primary_key=True, db_column=os.getenv('EXPENSE_ID_COLUMN', 'expense_id'))
     unit_id = models.CharField(max_length=5, db_column=os.getenv('UNIT_ID_COLUMN', 'unit_id'))
-    exp_name = models.CharField(max_length=255, db_column=os.getenv('EXP_NAME_COLUMN', 'exp_name'))
-    exp_amt = models.DecimalField(max_digits=15, decimal_places=2, db_column=os.getenv('EXP_AMT_COLUMN', 'exp_amt'))
-    exp_date = models.DateField(db_column=os.getenv('EXP_DATE_COLUMN', 'exp_date'))
-    exp_rct = models.FileField(upload_to='expense_receipts/', db_column=os.getenv('EXP_RCT_COLUMN', 'exp_rct'))
-    exp_bldg = models.IntegerField(db_column=os.getenv('EXP_BLDG_COLUMN', 'exp_bldg'))
+    expense_name = models.CharField(max_length=255, db_column=os.getenv('EXPENSE_NAME_COLUMN', 'expense_name'))
+    expense_amt = models.DecimalField(max_digits=15, decimal_places=2, db_column=os.getenv('EXPENSE_AMT_COLUMN', 'expense_amt'))
+    expense_date = models.DateField(db_column=os.getenv('EXPENSE_DATE_COLUMN', 'expense_date'))
+    expense_bldg = models.IntegerField(db_column=os.getenv('EXPENSE_BLDG_COLUMN', 'expense_bldg'))
+    expense_receipt = models.FileField(upload_to='expense_receipts/', db_column=os.getenv('EXPENSE_RECEIPT_COLUMN', 'expense_receipt'))
 
     class Meta:
-        db_table = os.getenv('EXP_TABLE_NAME', 'expense_table')
+        db_table = os.getenv('EXPENSE_TABLE_NAME', 'expense_table')
         managed = False
 
     def __str__(self):
-        expense = "{0}: {1} for {2} on {3}".format(self.unit_id, self.exp_amt, self.exp_name, self.exp_date)
+        expense = "{0}: {1} for {2} on {3}".format(self.unit_id, self.expense_amt, self.expense_name, self.expense_date)
         return expense
+
+    def get_expense_receipt_url(self):
+        return self.expense_receipt.url
 
 
 # icome table
@@ -114,10 +117,10 @@ class BldgExpYrModel(models.Model):
     year_total = models.DecimalField(max_digits=10, decimal_places=2, db_column=os.getenv('YEAR_TOTAL_COLUMN', 'year_total'))
     
     # Year (int) column
-    year = models.IntegerField(db_column=os.getenv('EXP_YEAR_COLUMN', 'year'))
+    year = models.IntegerField(db_column=os.getenv('EXPENSE_YEAR_COLUMN', 'year'))
 
     class Meta:
-        db_table = os.getenv('BLDG_EXPENSES_VIEW_NAME', 'bldg_exp_view')
+        db_table = os.getenv('BLDG_EXPENSES_VIEW_NAME', 'bldg_expense_view')
         managed = False
 
     def save(self, *args, **kwargs):
@@ -192,10 +195,10 @@ class UnitExpYrModel(models.Model):
     year_total = models.DecimalField(max_digits=10, decimal_places=2, db_column=os.getenv('YEAR_TOTAL_COLUMN', 'year_total'))
     
     # Year (int) column
-    year = models.IntegerField(db_column=os.getenv('EXP_YEAR_COLUMN', 'year'))
+    year = models.IntegerField(db_column=os.getenv('EXPENSE_YEAR_COLUMN', 'year'))
 
     class Meta:
-        db_table = os.getenv('UNIT_EXPENSES_VIEW_NAME', 'unit_exp_view')
+        db_table = os.getenv('UNIT_EXPENSES_VIEW_NAME', 'unit_expense_view')
         managed = False
 
     def save(self, *args, **kwargs):

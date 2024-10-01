@@ -1,0 +1,41 @@
+<header>
+    <h1>{{ app_name }}</h1>
+    
+    <nav class="nav-option-btn-section">
+        <ul class="nav-option-btn-ul">
+
+            {% if user.is_authenticated %}
+                {% if user.is_staff %}
+                    <li class="nav-option-btn"><a href="{% url 'dashboard_manager' %}">Dashboard</a></li>
+                    <li class="nav-option-btn"><a href="{% url 'finance_month' yr=default_year month=default_month %}">Finances by Month</a></li>
+                    <li class="nav-option-btn"><a href="{% url 'finance_unit' yr=default_year %}">Finances by Unit</a></li>
+                    <li class="nav-option-btn"><a href="{% url 'finance_month' yr=default_year month=default_month %}">Add New</a></li>
+                    <li class="nav-option-btn"><a href="{% url 'finance_unit' yr=default_year %}">Export Data</a></li>
+
+                {% else %}
+                    <li class="nav-option-btn"><a href="{% url 'dashboard_tenant' %}">Dashboard</a></li>
+                    <li class="nav-option-btn"><a href="{% url 'pay_rent' %}">Pay Rent</a></li>
+                    <li class="nav-option-btn"><a href="{% url 'maintenance_request' %}">Submit Maintenance Request</a></li>
+                {% endif %}
+                
+                <li id="logout-link" class="nav-option-btn">
+                    <form action="{% url 'logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">Logout</button>
+                    </form>
+                </li>
+            
+            {% else %}
+                <li id="login-link" class="nav-option-btn"><a href="{% url 'login' %}"><button>Login</button></a></li>
+            {% endif %}
+            
+            <li class="nav-option-btn"><a href="{% url 'contact' %}">Contact</a></li>
+
+        </ul>
+    </nav>
+
+    {% if user.is_authenticated %}
+        <p>Welcome, {{ user.first_name }}!</p>
+    {% endif %}
+    
+</header>

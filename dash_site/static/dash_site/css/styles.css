@@ -28,6 +28,42 @@ h1 {
     text-align: center;
 }
 
+/* Paragraph styles */
+p {
+    /* font-size: 16px; */
+    /* margin-bottom: 10px; */
+}
+
+/* Link styles */
+a {
+    color: #004466;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+footer {
+    text-align: center;
+}
+
+.nav-option-btn-ul {
+    list-style-type: none;
+    display: flex;
+    padding: 5% 0;
+}
+
+.nav-option-btn {
+    list-style-type: none;
+    margin: 0 1%;
+}
+
+.nav-option-btn button {
+    font-size: 105%;
+
+}
+
 #landing-page {
     height: 95vh;
     text-align: left;
@@ -81,40 +117,41 @@ h1 {
     padding: 10% 0;
 }
 
+/* COMPONENT STYLING */
 
-
-/* Paragraph styles */
-p {
-    font-size: 16px;
-    margin-bottom: 10px;
+.crud-form {
+    position: relative;
+    font-size: 0%;
 }
 
-/* Link styles */
-a {
-    color: #004466;
-    text-decoration: none;
+.crud-income-field {
+    position: relative;
+    display: none;
 }
 
-a:hover {
-    text-decoration: underline;
+.crud-expense-field {
+    position: relative;
+    display: none;
 }
 
-.nav-option-btn-ul {
-    list-style-type: none;
-    display: flex;
-    padding: 5% 0;
+#form_expense_receipt {
+    position: relative;
+    display: none;
 }
 
-.nav-option-btn {
-    list-style-type: none;
-    margin: 0 1%;
+#form_expense_bldg {
+    position: relative;
+    display: none;
 }
 
-.nav-option-btn button {
-    font-size: 105%;
-
+.save-btn {
+    display: none;
 }
 
-footer {
-    text-align: center;
+.cancel-btn {
+    display: none;
 }
+
+
+
+

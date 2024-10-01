@@ -10,6 +10,8 @@
     <title>Login</title>
 </head>
 <body>
+    {% include '../components/header.html' %}
+
     <main id="login-page">
         <h1>Login</h1>
         {% if error %}
@@ -25,6 +27,6 @@
         </form>
     </main>
     
-    <footer>&copy; 2024 C. R.</footer>
+    {% include '../components/footer.html' %}
 </body>
 </html>

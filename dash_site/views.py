@@ -1,8 +1,8 @@
+import os
 from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.db import IntegrityError
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 import csv
@@ -22,92 +22,19 @@ current_date = datetime.now()
 default_year = current_date.year
 default_month = current_date.month
 
+app_name = os.getenv('BUSINESS_NAME', 'Finance Manager')
 
-# Home Page
-def index(request):
-    return render(request, "index.html")
+"""
+STATS FUNCTIONS
+"""
 
-# Profile View Portal
-@login_required
-def profile_view(request):
-    user = request.user
-    if user.is_staff:
-        client_all = ClientModel.objects.order_by("unit_id")
-        expense_all = ExpenseModel.objects.order_by("-exp_date")
-        income_all = IncomeModel.objects.order_by("-income_date")
-
-        context = {
-            "client_all": client_all,
-            "expense_all": expense_all, 
-            "income_all": income_all,
-            "default_year": default_year,
-            "default_month": default_month,
-            "user": user,
-        }
-        return render(request, 'dashboard.html', context)
-    else:
-        return render(request, 'index.html', {'user': user})
-
-
-# Generate Graph of Expenses over Time
-def get_expense_time_graph(expenses):
-    # Format data for Matplotlib
-    dates = [expense.exp_date for expense in expenses]
-    amounts = [expense.exp_amt for expense in expenses]
-    
-    # Generate Matplotlib graph
-    plt.plot(dates, amounts, marker='o', linestyle='-')
-    plt.xlabel('Date')
-    plt.ylabel('Expense Amount')
-    plt.title('Expense Trends Over Time')
-    plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
-    
-    # Convert x-axis dates to a more readable format (optional)
-    plt.gca().xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter('%Y-%m-%d'))
-    
-    # Ensure that there's enough space for x-axis labels
-    plt.tight_layout()
-    
-    # Save the Matplotlib graph as a PNG image (optional)
-    plt.savefig('expense_trends.png')
-    
-    # Convert the Matplotlib graph to a base64-encoded string (optional)
-    buffer = BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    img_str = base64.b64encode(buffer.read()).decode()
-    buffer.close()
-
-    return img_str
-
-# Manager Dashboard
-@login_required
-def dashboard(request):
-    client_all = ClientModel.objects.order_by("unit_id")
-    expense_all = ExpenseModel.objects.order_by("-exp_date")
-    income_all = IncomeModel.objects.order_by("-income_date")
-    expense_graph = get_expense_time_graph(expense_all)
-    
-    context = {
-        "client_all": client_all,
-        "expense_all": expense_all,
-        "expense_graph": expense_graph,
-        "income_all": income_all,
-        "default_year": default_year,
-        "default_month": default_month
-    }
-    
-    return render(request, "dashboard.html", context)
-
-
-# ALL FINANCES PAGE
 # Retrieve financial data for specific month + year
 def get_finance_month(yr, month):
 
     # Expense data for month + year
     expense_data = ExpenseModel.objects.filter(
-        exp_date__year=yr,
-        exp_date__month=month
+        expense_date__year=yr,
+        expense_date__month=month
     )
     
     # Income data for month + year
@@ -123,56 +50,7 @@ def get_finance_month(yr, month):
 
     return finance_month_data
 
-# Render financial data for specific month + year
-@login_required
-def finance_month(request, yr=None, month=None):
-    
-    # Get distinct lists of available year and month choices for dropdown menus
-    available_years = sorted(list(IncomeModel.objects.values_list('income_year', flat=True).distinct()))
-    available_months = sorted(list(IncomeModel.objects.values_list('income_month', flat=True).distinct()))
 
-    # Retrieve income and expenses data for specific month + year
-    finance_month_data = get_finance_month(yr, month)
-
-    # Insert Income Form Instance
-    add_income_form = IncomeForm()
-
-    # Update Income Form Instance
-    update_income_form = IncomeForm()
-
-    # Delete Income Form Instance
-    delete_income_form = IncomeForm(readonly=True)
-    
-    # Insert Expense Form Instance
-    add_expense_form = ExpenseForm()
-
-    # Update Expense Form Instance
-    update_expense_form = ExpenseForm()
-
-    # Delete Expense From Instance
-    delete_expense_form = ExpenseForm(readonly=True)
-    
-    context = {
-        'available_years': available_years,
-        'available_months': available_months,
-        "default_year": default_year,
-        "default_month": default_month,
-        'selected_year': int(yr) if yr else default_year,
-        'selected_month': int(month) if month else default_month,
-        "finance_month_data": finance_month_data,
-        "add_income_form": add_income_form,
-        "update_income_form": update_income_form,
-        "delete_income_form": delete_income_form,
-        "add_expense_form": add_expense_form,
-        "update_expense_form": update_expense_form,
-        "delete_expense_form": delete_expense_form,
-        "user": request.user,
-    }
-
-    return render(request, "finance_month.html", context)
-
-
-# FINANCES BY BUILDING + YEAR
 # Retrive yearly financial data for specific building
 def get_finance_building(yr):
     
@@ -198,7 +76,6 @@ def get_finance_building(yr):
     return finance_building
 
 
-# FINANCES BY APARTMENT + YEAR
 # Retrive yearly financial data for each apartment
 def get_finance_unit(yr):
 
@@ -223,25 +100,36 @@ def get_finance_unit(yr):
     return finance_unit
 
 
-# Render yearly financial data for selected unit (building or apartment)
-@login_required
-def finance_unit(request, yr=None):
-    available_years = sorted(list(IncomeModel.objects.values_list('income_year', flat=True).distinct()))
+# Generate Graph of Expenses over Time
+def get_expense_time_graph(expenses):
+    # Format data for Matplotlib
+    dates = [expense.expense_date for expense in expenses]
+    amounts = [expense.expense_amt for expense in expenses]
+    
+    # Generate Matplotlib graph
+    plt.plot(dates, amounts, marker='o', linestyle='-')
+    plt.xlabel('Date')
+    plt.ylabel('Expense Amount')
+    plt.title('Expense Trends Over Time')
+    plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+    
+    # Convert x-axis dates to a more readable format (optional)
+    plt.gca().xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter('%Y-%m-%d'))
+    
+    # Ensure that there's enough space for x-axis labels
+    plt.tight_layout()
+    
+    # Save the Matplotlib graph as a PNG image (optional)
+    plt.savefig('expense_trends.png')
+    
+    # Convert the Matplotlib graph to a base64-encoded string (optional)
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    img_str = base64.b64encode(buffer.read()).decode()
+    buffer.close()
 
-    finance_unit = get_finance_unit(yr)
-    finance_building = get_finance_building(yr)
-
-    context = {
-        "available_years": available_years,
-        "default_year": default_year,
-        "default_month": default_month,
-        "finance_unit": finance_unit,
-        "finance_building": finance_building,
-        "selected_year": int(yr) if yr else default_year,
-        "user": request.user,
-    }
-
-    return render(request, "finance_unit.html", context)
+    return img_str
 
 
 # EXPORT DATA TO CSV
@@ -309,120 +197,401 @@ def export_to_csv(request):
     return response
 
 
-# FORM: Insert New Income Payment
-def insert_new_income(request):
+# GET CONTEXT INFO FOR FINANCE MONTH PAGE & CRUD FORM ENDPOINTS
+def get_finance_month_context(request, yr=None, month=None):
+     # Get distinct lists of available year and month choices for dropdown menus
+    available_years = sorted(list(IncomeModel.objects.values_list('income_year', flat=True).distinct()))
+    available_months = sorted(list(IncomeModel.objects.values_list('income_month', flat=True).distinct()))
+    
+    # unit_id_list = sorted(list(IncomeModel.objects.values_list('unit_id', flat=True).distinct()))
+    # unit_id_choices = [(unit_id, unit_id) for unit_id in unit_id_list]
+    unit_choices = IncomeForm.unit_id_list
+
+    # Retrieve income and expenses data for specific month + year
+    finance_month_data = get_finance_month(yr, month)
+
+    # Add Income Form Instance
+    crud_income_form = IncomeForm()
+    crud_expense_form = ExpenseForm()
+    
+    context = {
+        'available_years': available_years,
+        'available_months': available_months,
+        'unit_choices': unit_choices,
+        "default_year": default_year,
+        "default_month": default_month,
+        'selected_year': int(yr) if yr else default_year,
+        'selected_month': int(month) if month else default_month,
+        "finance_month_data": finance_month_data,
+        "crud_income_form": crud_income_form,
+        "crud_expense_form": crud_expense_form,
+        "app_name": app_name,
+        "user": request.user,
+    }
+    
+    return context
+
+
+
+"""
+ENDPOINTS
+"""
+
+# Insert New Income Payment
+def submit_add_income(request, yr=None, month=None):
+    context = get_finance_month_context(request, 
+                                        int(yr) if yr else default_year, 
+                                        int(month) if month else default_month)
+
     if request.method == 'POST':
         add_income_form = IncomeForm(request.POST)
         if add_income_form.is_valid():
             
             # Extract and clean data from the form
-            unit_id = add_income_form.cleaned_data['income_unit_id']
+            unit_id = add_income_form.cleaned_data['unit_id']
             income_amt = add_income_form.cleaned_data['income_amt']
             income_date = add_income_form.cleaned_data['income_date']
             income_month = add_income_form.cleaned_data['income_month']
             income_year = add_income_form.cleaned_data['income_year']
 
             try:
-                IncomeModel.objects.create(unit_id=unit_id, income_amt=income_amt, income_date=income_date, income_month=income_month, income_year=income_year)
+                IncomeModel.objects.create(unit_id=unit_id, income_amt=income_amt, 
+                                           income_date=income_date, income_month=income_month, 
+                                           income_year=income_year)
                 
             except IntegrityError:
                 return HttpResponse("An error occurred while inserting data.")
                 
-            return redirect('finance_month')  # Redirect to the updated finances_all page
+            return redirect('finance_month', 
+                            yr=int(yr) if yr else default_year, 
+                            month=int(month) if month else default_month)  # Redirect to the updated page
     else:
         add_income_form = IncomeForm()
-    
-    return render(request, 'finance_month.html', {'add_income_form': add_income_form})
+        context["crud_income_form"] = add_income_form
+
+    return render(request, 'managers/finance_month.html', context)
 
 
-# FORM: Update Income Payment
-def update_income(request, income_id):
+# Update Income Payment
+def submit_update_income(request, income_id, yr=None, month=None):
+    context = get_finance_month_context(request, 
+                                        int(yr) if yr else default_year, 
+                                        int(month) if month else default_month)
+
     income_row = get_object_or_404(IncomeModel, pk=income_id)
+    
     if request.method == 'POST':
         update_income_form = IncomeForm(request.POST, instance=income_row)
+        
         if update_income_form.is_valid():
+           
             try:
                 update_income_form.save()
                 
             except Exception as e:
                 return HttpResponse(f"An error occurred: {str(e)}.")
-                
-            return redirect('finance_month')  # Redirect to the updated finances_all page
-    else:
-        update_income_form = IncomeForm()
+
+            return redirect('finance_month', yr=int(yr) if yr else default_year, 
+                            month=int(month) if month else default_month)  # Redirect to the updated page
+
+    else:        
+        update_income_form = IncomeForm(instance=income_row)
+        context["crud_income_form"] = update_income_form
+
     
-    return render(request, 'finance_month.html', {'update_income_form': update_income_form})
+    return render(request, 'managers/finance_month.html', context)
 
 
-# FORM: Delete Income Payment
-def delete_income(request, income_id):
+# Delete Income Payment
+def submit_delete_income(request, income_id, yr=None, month=None):
+    context = get_finance_month_context(request, 
+                                        int(yr) if yr else default_year, 
+                                        int(month) if month else default_month)
+
     income_row = get_object_or_404(IncomeModel, pk=income_id)
     if request.method == 'POST':
             try:
                 income_row.delete()
-                return redirect('finance_month')  # Redirect to the updated finance_month page
 
             except Exception as e:
                 return HttpResponse(f"An error occurred: {str(e)}.")
+            
+            return redirect('finance_month', yr=int(yr) if yr else default_year, 
+                            month=int(month) if month else default_month)  # Redirect to the updated finance_month page
     
-    return render(request, 'finance_month.html')
+    return render(request, 'managers/finance_month.html', context)
 
 
-# FORM: Insert New Expense
-def insert_new_expense(request):
+# Insert New Expense
+def submit_add_expense(request, yr=None, month=None):
+    context = get_finance_month_context(request, 
+                                        int(yr) if yr else default_year, 
+                                        int(month) if month else default_month)
+
     if request.method == 'POST':
-        add_expense_form = ExpenseForm(request.POST)
+        add_expense_form = ExpenseForm(request.POST, request.FILES)
+        
         if add_expense_form.is_valid():
             
             # Extract and clean data from the form
-            unit_id = add_expense_form.cleaned_data['exp_unit_id']
-            exp_name = add_expense_form.cleaned_data['exp_name']
-            exp_amt = add_expense_form.cleaned_data['exp_amt']
-            exp_date = add_expense_form.cleaned_data['exp_date']
-            exp_rct = add_expense_form.cleaned_data['exp_rct']
-            exp_bldg = add_expense_form.cleaned_data['exp_bldg']
+            unit_id = add_expense_form.cleaned_data['unit_id']
+            expense_name = add_expense_form.cleaned_data['expense_name']
+            expense_amt = add_expense_form.cleaned_data['expense_amt']
+            expense_date = add_expense_form.cleaned_data['expense_date']
+            expense_bldg = add_expense_form.cleaned_data['expense_bldg']
+            expense_receipt = add_expense_form.cleaned_data['expense_receipt']
             
             try:
-                ExpenseModel.objects.create(unit_id=unit_id, exp_name=exp_name, exp_amt=exp_amt, exp_date=exp_date, exp_rct=exp_rct, exp_bldg=exp_bldg)
+                ExpenseModel.objects.create(unit_id=unit_id, expense_name=expense_name, 
+                                            expense_amt=expense_amt, expense_date=expense_date, 
+                                            expense_bldg=expense_bldg, expense_receipt=expense_receipt)
 
             except IntegrityError:
                 return HttpResponse("An error occurred while inserting data.")
                 
-            return redirect('finance_month')  # Redirect to the updated finances_all page
+            return redirect('finance_month', yr=int(yr) if yr else default_year, 
+                            month=int(month) if month else default_month)  # Redirect to the updated finances_all page
     else:
         add_expense_form = ExpenseForm()
+        context["crud-expense-form"] = add_expense_form
     
-    return render(request, 'finance_month.html', {'add_expense_form': add_expense_form})
+    return render(request, 'managers/finance_month.html', context)
 
 
-# FORM: Update Expense Payment
-def update_expense(request, expense_id):
+# Update Expense Payment
+def submit_update_expense(request, expense_id, yr=None, month=None):
+    # Get context for rendering finance_month page
+    context = get_finance_month_context(request, 
+                                        int(yr) if yr else default_year, 
+                                        int(month) if month else default_month)
+
+    # Get original data from the updated row
     expense_row = get_object_or_404(ExpenseModel, pk=expense_id)
+    
+    # Handle POST request
     if request.method == 'POST':
-        update_expense_form = ExpenseForm(request.POST, instance=expense_row)
+
+        # Get updated row contents
+        update_expense_form = ExpenseForm(request.POST, request.FILES, instance=expense_row)
+        
+        # Validate form
         if update_expense_form.is_valid():
+
             try:
-                update_expense_form.save()
-                
+                # Get form data as object without committing
+                update_expense_obj = update_expense_form.save(commit=False)
+
+                # Check if new receipt file has been uploaded
+                # Set form object's expense_receipt field to new file if exists
+                if 'expense_receipt' in request.FILES and request.FILES['expense_receipt']:
+                    update_expense_obj.expense_receipt = request.FILES['expense_receipt']
+                    
+                # Set form object's expense_receipt field to current file 
+                # if there is no new upload 
+                else:
+                    update_expense_obj.expense_receipt = expense_row.expense_receipt
+                               
+                # Save form
+                update_expense_obj.save()
+
+            # Handle errors
             except Exception as e:
                 return HttpResponse(f"An error occurred: {str(e)}.")
                 
-            return redirect('finance_month')  # Redirect to the updated finances_all page
+            return redirect('finance_month', yr=int(yr) if yr else default_year, 
+                            month=int(month) if month else default_month)  # Redirect to the updated finances_all page
+    
+    # Handle GET requests
     else:
         update_expense_form = IncomeForm()
+        context["crud-expense-form"] = update_expense_form
     
-    return render(request, 'finance_month.html', {'update_expense_form': update_expense_form})
+    # Render finance_month page
+    return render(request, 'managers/finance_month.html', context)
 
 
-# FORM: Delete Expense
-def delete_expense(request, income_id):
-    expense_row = get_object_or_404(ExpenseModel, pk=income_id)
+# Delete Expense
+def submit_delete_expense(request, expense_id, yr=None, month=None):
+    context = get_finance_month_context(request, 
+                                        int(yr) if yr else default_year, 
+                                        int(month) if month else default_month)
+
+    expense_row = get_object_or_404(ExpenseModel, pk=expense_id)
+    
     if request.method == 'POST':
             try:
                 expense_row.delete()
-                return redirect('finance_month')  # Redirect to the updated finance_month page
+                return redirect('finance_month', yr=int(yr) if yr else default_year, 
+                            month=int(month) if month else default_month)  # Redirect to the updated finance_month page
 
             except Exception as e:
                 return HttpResponse(f"An error occurred: {str(e)}.")
     
-    return render(request, 'finance_month.html')
+    return render(request, 'managers/finance_month.html', context)
+
+
+
+
+"""
+VIEWS
+"""
+
+# Home Page
+def index(request):
+
+    context = {
+        "default_year": default_year,
+        "default_month": default_month,
+        "app_name": app_name,
+    }
+
+    return render(request, "index.html", context)
+
+
+# Contact Page
+def contact(request):
+
+    context = {
+        "default_year": default_year,
+        "default_month": default_month,
+        "app_name": app_name,
+    }
+
+    return render(request, "contact.html", context)
+
+
+# Dashboard View Portal
+@login_required
+def profile_view(request):
+    user = request.user
+    if user.is_staff:
+        client_all = ClientModel.objects.order_by("unit_id")
+        expense_all = ExpenseModel.objects.order_by("-expense_date")
+        income_all = IncomeModel.objects.order_by("-income_date")
+        expense_graph = get_expense_time_graph(expense_all)
+
+        context = {
+            "client_all": client_all,
+            "expense_all": expense_all, 
+            "income_all": income_all,
+            "expense_graph": expense_graph,
+            "default_year": default_year,
+            "default_month": default_month,
+            "user": user,
+            "app_name": app_name,
+        }
+        return render(request, 'managers/dashboard_manager.html', context)
+    else:
+
+        context = {
+            "default_year": default_year,
+            "default_month": default_month,
+            "user": user,
+            "app_name": app_name,
+        }
+        return render(request, 'tenants/dashboard_tenant.html', context)
+
+
+
+"""
+MANAGER VIEWS
+"""
+# Manager Dashboard
+@login_required
+def dashboard_manager(request):
+    client_all = ClientModel.objects.order_by("unit_id")
+    expense_all = ExpenseModel.objects.order_by("-expense_date")
+    income_all = IncomeModel.objects.order_by("-income_date")
+    expense_graph = get_expense_time_graph(expense_all)
+    
+    context = {
+        "client_all": client_all,
+        "expense_all": expense_all,
+        "expense_graph": expense_graph,
+        "income_all": income_all,
+        "default_year": default_year,
+        "default_month": default_month,
+        "app_name": app_name,
+    }
+    
+    return render(request, 'managers/dashboard_manager.html', context)
+
+
+
+# FINANCES BY MONTH + YEAR
+# financial data for specific month + year
+@login_required
+def finance_month(request, yr=None, month=None):
+    context = get_finance_month_context(request, 
+                                        int(yr) if yr else default_year, 
+                                        int(month) if month else default_month)
+
+    return render(request, "managers/finance_month.html", context)
+
+
+# FINANCES BY BUILDING/APARTMENT + YEAR
+# Yearly financial data for selected unit (building or apartment)
+@login_required
+def finance_unit(request, yr=None):
+    available_years = sorted(list(IncomeModel.objects.values_list('income_year', flat=True).distinct()))
+
+    finance_unit = get_finance_unit(yr)
+    finance_building = get_finance_building(yr)
+
+    context = {
+        "available_years": available_years,
+        "default_year": default_year,
+        "default_month": default_month,
+        "finance_unit": finance_unit,
+        "finance_building": finance_building,
+        "selected_year": int(yr) if yr else default_year,
+        "user": request.user,
+        "app_name": app_name,
+    }
+
+    return render(request, "managers/finance_unit.html", context)
+
+
+"""
+TENANT VIEWS
+"""
+
+@login_required
+def dashboard_customer(request):
+    
+    
+    context = {
+        "default_year": default_year,
+        "default_month": default_month,
+        "app_name": app_name,
+    }
+    
+    return render(request, "customers/dashboard_customer.html", context)
+
+
+# Rent Payment Page for Tenants
+@login_required
+def submit_payment(request, payment_id):
+    
+    
+    context = {
+        "default_year": default_year,
+        "default_month": default_month,
+        "app_name": app_name,
+    }
+    
+    return render(request, "customers/submit_payment.html", context)
+
+
+# Maintenance Request Page for Tenants
+@login_required
+def service_request(request, service_id):
+    
+    
+    context = {
+        "default_year": default_year,
+        "default_month": default_month,
+        "app_name": app_name,
+    }
+    
+    return render(request, "customers/service_request.html", context)
