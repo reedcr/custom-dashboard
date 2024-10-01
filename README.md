@@ -52,17 +52,7 @@ This Django project is a custom dashboard application designed to help businesse
 5. Collaborate with team members by assigning roles and permissions as needed.
 
 
-## Contributing
-
-Contributions are welcome! Please fork the repository and submit a pull request with your improvements.
-
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-
 ## Support
 
-For any questions or issues, please [contact me](mailto:reedcae@gmail.com) or [submit an issue](https://github.com/literacy-dev/custom-dashboard/issues) on GitHub.
+For any questions or issues, please [contact me](mailto:reedcae@gmail.com) or [submit an issue](https://github.com/reedcr/custom-dashboard/issues) on GitHub.
 
